@@ -5,17 +5,55 @@ import (
 	"reflect"
 )
 
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////   Declaration    //////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+type MyIntType int
+type MyIntAlias = int
+
+func (a MyIntType) IntFunc() {
+	fmt.Println("IntFunc")
+}
+
+/*
+// error "cannot define new methods on non-local type int"
+func (a MyIntAlias) AliasFunc() {
+	fmt.Println("AliasFunc")
+}
+*/
+
 type Person struct {
 	Age  int8
 	Name string
 }
 
-func (p Person) Explain() string {
-	return fmt.Sprintf("%s is %d years old", p.Name, p.Age)
+func (p Person) PersonExplain() string {
+	return fmt.Sprintf("Person %s is %d years old", p.Name, p.Age)
 }
 
+type Employer = Person
+
+func (e Employer) EmployerExplain() string {
+	return fmt.Sprintf("Employer %s is %d years old", e.Name, e.Age)
+}
+
+/*
+// error -> Person.Explain redeclared in this block
+func (e Employer) PersonExplain() string {
+	return fmt.Sprintf("Employer/Person %s is %d years old", e.Name, e.Age)
+}
+*/
+
 func main() {
-	type Employer = Person
+
+	var i int = 99
+	//var i1 MyIntType = i //error -> MyIntType and int are different types
+	var i2 MyIntAlias = i // ok -> MyIntAlias is not a type
+	fmt.Println(i2)
+
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////     Equality     //////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
 
 	emp := Employer{
 		Age:  10,
@@ -60,5 +98,7 @@ func main() {
 	//////////////////////////////////////////////////////////////////////////////
 	////////////////////////////   Method    /////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
-	fmt.Println("Employer uses Person's method:", emp.Explain())
+	fmt.Println("Employer uses Person's method:", emp.PersonExplain())
+	fmt.Println("Employer uses Employer's method:", emp.EmployerExplain())
+	fmt.Println("Person uses Employer's method:", pers.EmployerExplain())
 }
