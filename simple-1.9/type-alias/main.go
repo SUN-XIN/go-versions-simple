@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/SUN-XIN/go-versions-simple/simple-1.9/type-alias/types"
 )
 
 //////////////////////////////////////////////////////////////////////////////
@@ -43,6 +45,19 @@ func (e Employer) PersonExplain() string {
 	return fmt.Sprintf("Employer/Person %s is %d years old", e.Name, e.Age)
 }
 */
+
+type Student struct {
+	Person
+}
+
+type User struct {
+	Employer
+}
+
+type People struct {
+	Person
+	Employer
+}
 
 func main() {
 
@@ -101,4 +116,48 @@ func main() {
 	fmt.Println("Employer uses Person's method:", emp.PersonExplain())
 	fmt.Println("Employer uses Employer's method:", emp.EmployerExplain())
 	fmt.Println("Person uses Employer's method:", pers.EmployerExplain())
+
+	//////////////////////////////////////////////////////////////////////////////
+	////////////////////////     Embedding       /////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	var stu Student
+	stu.Person.Age = 20
+	stu.Person.Name = "bob"
+	/*
+		// error ->
+		// stu.Employer undefined (type Student has no field or method Employer)
+		stu.Employer.Age = 20
+		stu.Employer.Name = "bob"
+	*/
+	fmt.Printf("Embedding type Student: %+v -> \n%s\n%s\n\n", stu, stu.EmployerExplain(), stu.PersonExplain())
+
+	var us User
+	us.Employer.Age = 30
+	us.Employer.Name = "tom"
+	/*
+		// error ->
+		// us.Person undefined (type User has no field or method Person)
+		us.Person.Age = 30
+		us.Person.Name = "tom"
+	*/
+	fmt.Printf("Embedding type User: %+v -> \n%s\n%s\n\n", us, us.EmployerExplain(), us.PersonExplain())
+
+	var pp People
+	pp.Employer.Age = 11
+	pp.Employer.Name = "emp_name"
+	pp.Person.Age = 22
+	pp.Person.Name = "pers_name"
+	fmt.Printf("Embedding type People: %+v \n", pp)
+	// error -> ambiguous selector pp.EmployerExplain
+	//fmt.Printf("%s \n", pp.EmployerExplain())
+
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////     import       //////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	// error -> private, can not import
+	// var c types.city
+	c := types.City{
+		Name: "paris",
+	}
+	fmt.Println("Import type", c)
 }
